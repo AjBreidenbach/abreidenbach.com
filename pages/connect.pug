@@ -1,0 +1,29 @@
+html(lang='en')
+  head
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    if production
+      style
+        include ../connect/public/build/bundle.css
+        include ../connect/public/global.css
+    else
+      link(rel='stylesheet' href='/connect/public/build/bundle.css')
+      link(rel='stylesheet' href='/connect/public/global.css')
+    style
+      | h1 {writing-mode: vertical-rl; text-orientation: upright; position: fixed; margin: 0}
+      | main > svg {width: 75%; height: auto;}
+      | main {text-align: center; position: relative; margin-right: 1em;}
+      | @media only screen and (max-width: 600px) {
+      | main {max-width: 100vw; margin: auto}
+      | main > svg {width: calc(100vw - 10px); height: auto; padding: 5px; box-sizing: border-box;}
+      | h1 {display: none;}
+      | }
+      | body { margin: 2em 0 2em 0; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}
+  body
+    h1 Connect
+
+    main(id='mount')
+    if production
+      script
+        include ../connect/public/build/bundle.js
+    else
+      script(src="/connect/public/build/bundle.js")
