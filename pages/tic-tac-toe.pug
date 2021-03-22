@@ -1,0 +1,27 @@
+html(lang='en')
+  head
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    if production
+      style
+        include ../tic-tac-toe/public/build/bundle.css
+        include ../tic-tac-toe/public/global.css
+    else
+      link(rel='stylesheet' href='/tic-tac-toe/public/build/bundle.css')
+      link(rel='stylesheet' href='/tic-tac-toe/public/global.css')
+    style
+      | h1 {writing-mode: vertical-rl; text-orientation: upright; position: fixed; margin: 0}
+      | main {text-align: center; position: relative; margin-right: 1em;}
+      | @media only screen and (max-width: 600px) {
+      | main {margin-left: 3em; max-width: calc(100vw - 4em)}
+      | svg {max-width: calc(100%); height: auto;}
+      | }
+      | body { margin: 2em 0 2em 0; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}
+  body
+    h1 Tic Tac Toe
+
+    main(id='mount')
+    if production
+      script
+        include ../tic-tac-toe/public/build/bundle.js
+    else
+      script(src="/tic-tac-toe/public/build/bundle.js")
