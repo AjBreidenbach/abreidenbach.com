@@ -1,12 +1,21 @@
 export default class GameState {
 
-  constructor() {
-    this.turn = Math.round(Math.random()) * 2  - 1
+  constructor(controllers) {
+    this.turn =  -1
     this.stacks = [0, 0, 0, 0, 0, 0, 0]
-    this.pieces = []
+    //this.pieces = []
+    //console.error(controllers)
+    this.controllers = controllers
     this.board = new Array(42)
   }
 
+
+
+  reset() {
+
+    this.stacks = [0, 0, 0, 0, 0, 0, 0]
+    this.board.length = 0
+  }
 
   getCell(x,y) {
     return this.board[x + y * 7]
@@ -107,11 +116,15 @@ export default class GameState {
     
   }
 
-  takeTurn(x) {
+  takeTurn(x, controller) {
+    console.log(controller, this.controllers[this.turn], this.turn)
+    if (this.controllers[this.turn] != controller) return 0
     let y
-    if ((y = this.stacks[x]++) > 5) return
+    if ((y = this.stacks[x]++) > 5) return 0
     this.setCell(x,y,this.turn)
-    this.pieces.push({x,y, color: this.turn})
+    //this.pieces.push({x,y, color: this.turn})
+    window.dispatchEvent(new CustomEvent('drop-piece', {detail: {x,y,color:this.turn}}))
+    //console.log(this.pieces)
     this.turn *= -1
     return this.check()
 

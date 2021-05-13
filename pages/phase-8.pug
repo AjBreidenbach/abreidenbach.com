@@ -1,14 +1,15 @@
+
 html(lang='en')
   head
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
-    if production
+    //if production
       style
         include ../connect/public/build/bundle.css
         include ../connect/public/global.css
-    else
+    //else
       link(rel='stylesheet' href='/connect/public/build/bundle.css')
       link(rel='stylesheet' href='/connect/public/global.css')
-    style
+    //style
       | h1 {writing-mode: vertical-rl; text-orientation: upright; position: fixed; margin: 0}
       | main > svg {width: 75%; height: auto;}
       | main {text-align: center; position: relative; margin-right: 1em;}
@@ -20,11 +21,12 @@ html(lang='en')
       | body { padding: 2em 0 2em 0; }
       | .noselect {-webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}
   body
-    h1 Connect
+    h1 Phase-8
 
     main(id='mount')
+      canvas(id="canvas" style='display: none; width: 100; height: 150;')
     if production
       script
-        include ../connect/public/build/bundle.js
+        include ../phase-8/public/build/bundle.js
     else
-      script(src="/connect/public/build/bundle.js")
+      script(src="/phase-8/public/build/bundle.js")

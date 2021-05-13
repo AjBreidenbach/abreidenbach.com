@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <script src="lib.js"></script>
+    <script>
+
+      async function main() {
+
+
+        let {emitAction, roomId, playerId, index, ws} = await startMultiplayerSession()
+
+        console.log({roomId, playerId, index, ws})
+
+
+        document.querySelector('div#output').innerHTML = `<a href="${location.href}?join=${roomId}">join here</a>`
+
+        emitAction('test')
+        window.emitAction = emitAction
+      }
+
+      main()
+    </script>
+  </head>
+  <body>
+    <div id="output"></div>
+  </body>
+
+</html>

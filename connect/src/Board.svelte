@@ -2,11 +2,34 @@
   import GameState from './game-state.js'
   import Piece from './Piece.svelte'
 
+  export let controllers; 
+  export let actionHandler; 
+  export let multiplayerSession; 
+
   let readyToRestart = false
 
   let result = 0
-  let game = new GameState()
+  let game
+  let pieces = []
 
+  game = new GameState(controllers)
+
+  $: game.controllers = controllers
+  
+  window.addEventListener('drop-piece', e => {
+    let piece = e.detail
+    pieces.push(piece)
+    pieces = pieces
+    console.log({result, game, readyToRestart})
+
+  })
+
+  function setResult(_result) {
+    result = _result
+    if(result) setTimeout(flourish, 3000)
+  }
+
+  actionHandler = actionHandler.bind(null, game, setResult, clear)
 
   function bound(n, min, max) {
     return Math.min(max, Math.max(Math.floor(n), min))
@@ -14,13 +37,13 @@
 
 
   function flourish() {
-    readyToRestart = true
     if (result !== 0) {
+      readyToRestart = true
       game.turn = result
       for(let i = 0; i < 42; i++) {
         if(!game.board[i]) {
           let x = i % 7
-          game.takeTurn(x)
+          game.takeTurn(x, controllers[result])
 
           setTimeout(flourish, 1000)
           break
@@ -32,12 +55,23 @@
   }
 
 
-  function clickHandler(e) {
-    if (result !== 0) {
-      game = new GameState()
-      result = 0
-      readyToRestart = false
+  function clear() {
+    console.log('clear')
+    game.reset()
+    game.turn = result * -1
+    result = 0
+    pieces = []
+    readyToRestart = false
+  }
 
+
+  function clickHandler(e) {
+    console.log({result, game, pieces, readyToRestart})
+    if (result !== 0) {
+      clear()
+      if(multiplayerSession && multiplayerSession.emitAction)
+        multiplayerSession.emitAction({kind: 'clear'})
+      
       return
     }
 
@@ -49,7 +83,19 @@
 
     x /= 32; x = bound(x, 0, 6)
 
-    result = game.takeTurn(x)
+
+    if(multiplayerSession) {
+      let {emitAction, index} = multiplayerSession
+
+      let controller = index? 'remote_green': 'remote_red'
+
+      emitAction({kind: 'takeTurn', controller, x})
+
+      result = game.takeTurn(x, index? 'ui': 'local_red')
+
+    } else {
+      result = game.takeTurn(x, 'ui')
+    }
 
     game = game
 
@@ -60,7 +106,7 @@
   
 </script>
 
-<h2>
+<h2 class="noselect">
   {#if false}
   {:else if result === 1}
     Green won!
@@ -73,9 +119,9 @@
   {/if}
 </h2>
 
-<svg class:darken={result !== 0} width="232" height="204" viewBox ="0 0 232 204">
+<svg class="noselect" class:darken={result !== 0} width="232" height="204" viewBox ="0 0 232 204">
 
-  {#each game.pieces as piece}
+  {#each pieces as piece}
     <Piece piece={piece} />
   {/each}
 
@@ -95,6 +141,7 @@
     margin-top: -180px;
     position: relative;
     text-shadow: 1px 1px 5px black;
+    z-index: 0
     
   }
 
@@ -110,4 +157,10 @@
     filter: brightness(0.25);
 
   } 
+
+ svg {
+   position: relative;
+   z-index: 1;
+
+ }
 </style>
