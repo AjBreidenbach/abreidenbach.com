@@ -46,7 +46,7 @@ class Card {
 
     let color = Deck.colorOf(id)
     let type = Deck.typeOf(id)
-    
+    this.animationCounter = 0 
     this.color = color
     this.type = type
     this.textureIndex = Card.getTextureIndex(color, type)
@@ -100,13 +100,15 @@ class Card {
     }
 
     let card = this
+    let animationCounter = ++this.animationCounter
 
     
+    /*
     if (this.moving) {
       throw new Error('trying to animate the same object')
     }
-    //console.assert(!this.moving, 'wtf')
     if(this.moving) return
+    */
     this.moving = true
 
     let velocity = baseVelocity * this.scale
@@ -148,7 +150,7 @@ class Card {
             deltaY = 0
           }
         }
-        if (incrementX || incrementY) {
+        if ((incrementX || incrementY) && card.animationCounter == animationCounter) {
           requestAnimationFrame(() => {
             card.sprite.x += incrementX
             card.sprite.y += incrementY
@@ -156,6 +158,9 @@ class Card {
           })
         } else {
           resolve()
+          if (card.animationCounter == animationCounter)
+            card.animationCounter = 0
+            
           card.moving = false
         }
       })

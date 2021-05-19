@@ -7,7 +7,7 @@ import Phase8Client from './game-client'
 import KeyboardHandler from './keyboard'
 
 
-const app = new PIXI.Application({backgroundColor: 0xffffff, width: 1200})
+const app = new PIXI.Application({backgroundColor: 0xffffff, width: 1200, height: 800})
 app.stage.sortableChildren = true
 
 window.app = app

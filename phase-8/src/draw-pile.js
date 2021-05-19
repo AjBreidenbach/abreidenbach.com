@@ -1,4 +1,9 @@
 import Card from './card'
+
+
+const DRAW_PILE_FACE_UP_OPTIONS   = {moveable: false, selectable: false}
+const DRAW_PILE_FACE_DOWN_OPTIONS = {moveable: false, selectable: false}
+
 class DrawPile {
 
   constructor(app, deck, options) {
@@ -13,12 +18,15 @@ class DrawPile {
     }, options)
 
     //let [color, type] = deck.draw()
-    let faceUpTop = new Card(app, deck.draw())
+    let faceUpTop = new Card(app, deck.draw(), DRAW_PILE_FACE_UP_OPTIONS)
     faceUpTop.zIndex = 1
     faceUpTop.moveTo(this.x0, this.y0, false)
     //this.faceUpPile.push(faceUpTop)
     //let [color0, type0] = deck.draw()
-    this.faceDown = new Card(app, deck.draw())
+    this.faceDown = new Card(app, deck.draw(), DRAW_PILE_FACE_DOWN_OPTIONS)
+    let client = this.app.client
+    this.faceDown.onClick = _ => client.drawCard(false)
+    window.faceDown = this.faceDown
 
 
     this.pushFaceUp(faceUpTop, false)
@@ -58,10 +66,13 @@ class DrawPile {
 
 
   pushFaceUp(card, reposition=true) {
+
+    let client = this.app.client
+    card.onClick = _ => client.drawCard(true)
     card.sprite.zIndex = this.faceUpPile.length
+    Object.assign(card, DRAW_PILE_FACE_UP_OPTIONS)
     this.faceUpPile.push(card)
     if(reposition) this.positionDrawPile()
-    card.onClick = console.log
 
   }
 
