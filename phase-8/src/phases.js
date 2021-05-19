@@ -254,8 +254,6 @@ function testPhase1() {
 
 }
 
-testPhase1()
-
 function testPhase2() {
   let actual, expected, source, cards
   let phase = phase2.bind(null, dummyApp())
@@ -293,5 +291,8 @@ function testPhase2() {
 
 }
 
-testPhase2()
+if (TEST_MODE) {
+  testPhase1()
+  testPhase2()
+}
 

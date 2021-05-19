@@ -6,4 +6,4 @@ export function dummyApp() {
   return dummyApp
 }
 
-
+window.TEST_MODE = !!location.search.match(/(\?|&)test($|&)/)

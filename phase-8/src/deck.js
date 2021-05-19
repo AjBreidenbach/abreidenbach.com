@@ -2,12 +2,24 @@ const COLORS = ['red', 'blue', 'green', 'yellow', null]
 const TYPES = [1,2,3,4,5,6,7,8,9,10,11,12,'W','S']
 
 class Deck {
+
+  static colorOf(n) {
+    return COLORS[Deck.cardColor(n)]
+  }
+
+  static typeOf(n) {
+    return TYPES[Deck.cardValue(n)]
+  }
+
   static cardColor(n) {
+    return n % 4
+    /*
     if (n < 95) {
       return n % 4
     } else {
       return 4
     }
+    */
   }
 
   static cardValue(n) {
@@ -48,10 +60,13 @@ class Deck {
   }
 
   draw() {
+    /*
     let card = this.cards.pop()
     let type = TYPES[Deck.cardValue(card)]
     let color = COLORS[Deck.cardColor(card)] || COLORS[Math.min(Math.floor(this.rng() * 4), 3)]
     return [color, type]
+    */
+    return this.cards.pop()
   }
 
   /*

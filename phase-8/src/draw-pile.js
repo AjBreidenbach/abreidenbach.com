@@ -12,13 +12,13 @@ class DrawPile {
       y1: 150,
     }, options)
 
-    let [color, type] = deck.draw()
-    let faceUpTop = new Card(app, color, type)
+    //let [color, type] = deck.draw()
+    let faceUpTop = new Card(app, deck.draw())
     faceUpTop.zIndex = 1
     faceUpTop.moveTo(this.x0, this.y0, false)
     //this.faceUpPile.push(faceUpTop)
-    let [color0, type0] = deck.draw()
-    this.faceDown = new Card(app, color0, type0)
+    //let [color0, type0] = deck.draw()
+    this.faceDown = new Card(app, deck.draw())
 
 
     this.pushFaceUp(faceUpTop, false)
@@ -67,8 +67,9 @@ class DrawPile {
 
   deal(hand, n = 10, reposition=false) {
     for(let i = 0; i < n; i++) {
-      let [color, type] = this.deck.draw()
-      let card = new Card(this.app, color, type)
+      //let [color, type] = this.deck.draw()
+      let cardId = this.deck.draw()
+      let card = new Card(this.app, cardId)
       if (reposition) card.moveTo(this.x0, this.y0, false)
       hand.draw(card, reposition)
       

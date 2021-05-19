@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js'
+import Deck from './deck'
 
 const COLOR_MAPPINGS = {
   red: 'crimson',
@@ -23,7 +24,7 @@ function squareDistance(a,b) {
 
 class Card {
 
-  static getIndex(c,i) {
+  static getTextureIndex(c,i) {
     let _i = i
     i = typeof i == 'number'?
       i - 1: i == 'W'? 
@@ -39,12 +40,16 @@ class Card {
       i + 42: -1
   }
 
-  constructor(app, color, type, options) {
+  constructor(app, id, options) {
     Object.assign(this, {moveable: true, selectable: false, isFaceUp: false, scale: 1}, options)
+    this.id = id
+
+    let color = Deck.colorOf(id)
+    let type = Deck.typeOf(id)
     
     this.color = color
     this.type = type
-    this.index = Card.getIndex(color, type)
+    this.textureIndex = Card.getTextureIndex(color, type)
     this.sprite = new Sprite(Card.BACK)
     this.sprite.interactive = true
     this.mouseorigin = [0,0]
@@ -165,7 +170,7 @@ class Card {
     if (this.isFaceUp) return
     this.isFaceUp = true
     if (animate) await this.animateFlip()
-    this.sprite.texture = Card.TEXTURES[this.index]
+    this.sprite.texture = Card.TEXTURES[this.textureIndex]
     if (animate) await this.animateFlip(-1)
   }
 

@@ -81,12 +81,14 @@ class Hand {
       if (selected && selected.length == 1) {
         //console.log(selected)
         let card = selected[0]
-        client.discardCard(card.color, card.type)
+        //client.discardCard(card.color, card.type)
+        client.discardCard(card.id)
       }
     })
 
 
-    function simpleRepr(card) {return {color: card.color, type: card.type}}
+    function simpleRepr(card) {return {id: card.id, color: card.color, type: card.type}}
+    function idRepr(card) {return card.id}
 
     keyboardHandler.registerHandler('KeyP', () => {
       //console.log('here')
@@ -127,8 +129,11 @@ class Hand {
     keyboardHandler.unregisterHandlers('KeyC', 'KeyV', 'Digit1', 'Digit2', 'KeyD', 'KeyP')
   }
 
-  addCard(color, type) {
-    this.cards.push(new Card(this.app, color, type, this.cardOptions))
+  addCard(card) {
+    if (typeof card == 'number') 
+      this.cards.push(new Card(this.app, card, this.cardOptions))
+    else this.cards.push(card)
+    
   }
 
   draw(card, reposition=false) {
@@ -142,15 +147,16 @@ class Hand {
   drawFrom(drawPile, reposition=false) {
     console.error(drawFrom)
     let deck = drawPile.deck
-    let [color, type] = deck.draw()
+    //let [color, type] = deck.draw()
+    let cardId = deck.draw()
     //console.log({drawPile, deck})
     if (reposition) {
-      let card = new Card(this.app, color, type, this.cardOptions)
+      let card = new Card(this.app, cardId, this.cardOptions)
       card.moveTo(drawPile.x0, drawPile.y0, false)
       this.cards.push(card)
       this.positionCards(true)
     } else {
-      this.addCard(color,type)
+      this.addCard(cardId)
     }
   }
 
@@ -178,9 +184,9 @@ class Hand {
     }
   }
 
-  removeCard(color, type) {
+  removeCard(id) {
     //console.log('removeCard', this, {color,type})
-    let index = this.cards.findIndex(card => card.color == color && card.type == type)
+    let index = this.cards.findIndex(card => card.id == id)
 
     if(index == -1) return
     let removed = this.cards[index]
@@ -189,7 +195,7 @@ class Hand {
     return removed
   }
 
-  discardCard(color, type, drawPile) {
+  discardCard(id, drawPile) {
     /*
     let index = this.cards.findIndex(card => card.color == color && card.type == type)
     
@@ -202,7 +208,7 @@ class Hand {
 
     this.cards = this.cards.filter((c, _index) => index != _index)
     */
-    let discarded = this.removeCard(color, type)
+    let discarded = this.removeCard(id)
     discarded.scale = 1
     drawPile.pushFaceUp(discarded)
 
@@ -211,7 +217,6 @@ class Hand {
 
   discardIndex() {
     console.error('unimplemented')
-
   }
 
 

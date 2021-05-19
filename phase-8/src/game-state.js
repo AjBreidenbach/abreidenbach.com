@@ -187,13 +187,13 @@ class GameState {
       }
     }).bind(this)
 
-    this.actionHandlers['discardCard'] = (({color, type}, player) => {
+    this.actionHandlers['discardCard'] = (({id}, player) => {
       //console.log('did discardCard?', this.currentTurn.did(DISCARD_CARD))
       if(this.currentTurn.did(DISCARD_CARD)) return
       this.currentTurn.do(DISCARD_CARD)
       let hand = this.hands[player]
       //console.log(this.hands, player)
-      hand.discardCard(color, type, this.drawPile)
+      hand.discardCard(id, this.drawPile)
       if (this.currentTurn.did(DRAW_CARD)) {
 
         this.actionHandlers['endTurn'](null, player)
@@ -211,7 +211,7 @@ class GameState {
         set.index = this.completedSets.length
         this.completedSets.push(set)
         for(let card of set.expectedCards) {
-          set.hitFrom(hand, card.color, card.type)
+          set.hitFrom(hand, card)
         }
         set.positionCards(true, 20)
       }
@@ -226,7 +226,7 @@ class GameState {
       let set = this.completedSets[setIndex]
       let hand = this.hands[player]
       for (let card of cards) {
-        set.hitFrom(hand, card.color, card.type)
+        set.hitFrom(hand, card)
       }
       set.positionCards(true, 20)
 
@@ -308,7 +308,6 @@ function runTests() {
   testOrdering()
 }
 
-
-runTests()
+if (TEST_MODE) runTests()
 
 export default GameState

@@ -72,10 +72,11 @@ class Phase8Client extends GameClient {
     })
   } 
 
-  discardCard(color, type) {
+  discardCard(id) {
     this.dispatchEvent({
       kind: 'discardCard',
-      color, type
+      id
+      //color, type
     })
   }
 
