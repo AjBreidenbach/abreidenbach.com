@@ -98,11 +98,8 @@ class Hand {
 
     keyboardHandler.registerHandler('KeyD', () => {
       let selected = hand.getSelected()
-      //console.log('discard')
       if (selected && selected.length == 1) {
-        //console.log(selected)
         let card = selected[0]
-        //client.discardCard(card.color, card.type)
         client.discardCard(card.id)
       }
     })

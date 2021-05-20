@@ -48,7 +48,8 @@ function startGame(app, gameState, client){
 
 window.addEventListener('DOMContentLoaded', _ => {
   app.loader.add(
-    'cancel', '/pages/static/phase-8/assets/cancel.png'
+    'cancel', '/pages/static/phase-8/assets/cancel.png',
+    'place', '/pages/static/phase-8/assets/place.png'
   ).load(setup)
 })
 

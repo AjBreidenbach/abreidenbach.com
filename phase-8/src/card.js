@@ -87,6 +87,25 @@ class Card {
     this.sprite.on('mouseup', mouseupHandler.bind(this))
     this.sprite.on('mouseupoutside', mouseupHandler.bind(this))
 
+    this.sprite.on('mouseover', _ => {
+      let client = app.client
+      if(this.isDropTarget && client.hasDraggingTarget()) {
+        this.alpha = 0
+        client.setDroppingTarget(this)
+      }
+    })
+
+    this.sprite.on('mouseout', _ => {
+      let client = app.client
+      if(this.isDropTarget) {
+        this.alpha = this.defaultAlpha
+        if(this.defaultAlpha === undefined || this.defaultAlpha === null)
+          this.alpha = 1
+        client.removeDroppingTarget(this)
+
+      }
+    })
+
     this.sprite.on('mousemove', ({data}) => {
       if (this.tracking && this.moveable) {
         this.sprite.x = data.global.x - this.grabbingX
@@ -99,6 +118,42 @@ class Card {
     
   }
 
+  set zIndex(z) {
+    this.sprite.zIndex = z
+  }
+
+  set alpha(a) {
+    this.sprite.alpha = a
+  }
+
+  set texture(t) {
+    this.sprite.texture = t
+  }
+
+
+  set isDropTarget(a) {
+    if(a) {
+      this.zIndex = 2
+    } else {
+      this.zIndex = 0
+    }
+    
+    this._isDropTarget = a
+  }
+
+  get isDropTarget() {
+    return this._isDropTarget
+  }
+
+
+  static placeholder() {
+    let placeholder = new Card(app, -1)
+    placeholder.texture = Card.HALO
+    placeholder.isDropTarget = true
+
+    return placeholder
+
+  }
 
   moveTo(x,y, animate = true, baseVelocity = 12) {
     this.sprite.width = this.scale * 100
@@ -188,7 +243,7 @@ class Card {
     this.isFaceUp = true
     if (animate) await this.animateFlip()
     if(this.textureIndex >= 0)
-      this.sprite.texture = Card.TEXTURES[this.textureIndex]
+      this.texture = Card.TEXTURES[this.textureIndex]
     if (animate) await this.animateFlip(-1)
   }
 
@@ -196,7 +251,7 @@ class Card {
     if (!this.isFaceUp) return
     this.isFaceUp = false
     if (animate) await this.animateFlip()
-    this.sprite.texture = Card.BACK
+    this.texture = Card.BACK
     if (animate) await this.animateFlip(-1)
   }
 
@@ -372,13 +427,6 @@ function drawHalo() {
   ctx.lineWidth = 6
   ctx.strokeStyle = 'blue'
   ctx.strokeRect(3,3,197,297)
-  /*
-  let grd = ctx.createRadialGradient(50, 100, 20, 100, 150, 200)
-  grd.addColorStop(0, '#ffffff00')
-  grd.addColorStop(1, 'yellow')
-  ctx.fillStyle = grd
-  ctx.fillRect(0,0,200,300)
-  */
 }
 
 export default Card
