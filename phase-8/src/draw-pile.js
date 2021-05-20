@@ -80,7 +80,6 @@ class DrawPile {
 
     card.onClick = _ => client.drawCard(true)
     card.zIndex = this.faceUpPile.length + 2
-    console.log(card.sprite.zIndex)
     Object.assign(card, DRAW_PILE_FACE_UP_OPTIONS)
     this.faceUpPile.push(card)
     if(reposition) this.positionDrawPile()

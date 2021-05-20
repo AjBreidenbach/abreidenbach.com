@@ -90,10 +90,15 @@ class Phase8Client extends GameClient {
     })
   }
 
-  layPhase(cards) {
+  //layPhase(cards) {
+  layPhase() {
+    let sets = this.gameState.stageAreas.map(sa => sa.cards.filter(card => card.id != -1).map(card => card.toSimpleRepr()))
+    for(let stageArea of this.gameState.stageAreas) {
+      stageArea.reset(false)
+    }
     this.dispatchEvent({
       kind: 'layPhase',
-      cards
+      sets
     })
   }
 

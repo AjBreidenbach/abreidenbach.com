@@ -225,9 +225,10 @@ class GameState {
     }).bind(this)
 
 
-    this.actionHandlers['layPhase'] = (({cards}, player) => {
-      if(!Array.isArray(cards)) return
+    this.actionHandlers['layPhase'] = (({sets}, player) => {
+      // TODO add this check back if(!Array.isArray(cards)) return
       let phase = this.phases[this.playerPhases[player]]
+      let cards = sets.flat()
       let completedSets = phase(this.app, cards, this.completedSetPositions)
       if (! Array.isArray(completedSets)) return
       let hand = this.hands[player]

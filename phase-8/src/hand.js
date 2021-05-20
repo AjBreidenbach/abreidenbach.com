@@ -110,11 +110,13 @@ class Hand {
 
     keyboardHandler.registerHandler('KeyP', () => {
       //console.log('here')
-      let selected = this.getSelected()
-      if(selected) {
-        client.layPhase(selected.map(simpleRepr))
-      }
+      //let selected = this.getSelected()
+      //if(selected) {
+        //client.layPhase(selected.map(simpleRepr))
+      //}
       
+
+      client.layPhase()
     })
 
     keyboardHandler.registerHandler('KeyH', () => {

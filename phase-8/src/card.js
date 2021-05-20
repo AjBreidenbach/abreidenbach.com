@@ -155,6 +155,10 @@ class Card {
 
   }
 
+  toSimpleRepr() {
+    return {id: this.id, color: this.color, type: this.type}
+  }
+
   moveTo(x,y, animate = true, baseVelocity = 12) {
     this.sprite.width = this.scale * 100
     this.sprite.height = this.scale * 150

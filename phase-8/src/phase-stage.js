@@ -110,7 +110,7 @@ class PhaseStage extends Hand {
 
   getMessage() {return this.phaseDescription}
 
-  reset() {
+  reset(animate=true) {
     let modified = false
     for(let i = 0; i < this.cards.length; i++) {
       if(this.cards[i].id != -1) {
@@ -123,8 +123,8 @@ class PhaseStage extends Hand {
     }
 
     if (modified) {
-      this.app.client.playerHand.positionCards()
-      this.positionCards()
+      this.app.client.playerHand.positionCards(animate)
+      this.positionCards(false)
     }
 
 
