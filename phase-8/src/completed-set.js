@@ -3,7 +3,7 @@ import Hand from './hand'
 class CompletedSet extends Hand {
   constructor(app, cards, setDescriminator, options) {
     super(app, Object.assign(
-      {show:true, owned: false, scale: 2/3},
+      {show:true, owned: false, scale: 2/3, hasInfo: false},
       options))
     this.setDescriminator = setDescriminator
     this.expectedCards = cards

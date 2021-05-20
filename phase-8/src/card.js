@@ -61,21 +61,31 @@ class Card {
       this.grabbingX = data.global.x - this.sprite.x
       this.grabbingY = data.global.y - this.sprite.y
       this.mouseorigin = [data.global.x, data.global.y]
+      if(this.draggable) {
+        app.client.setDraggingTarget(this)
+      }
       
       this.tracking = true
       this.sprite.zIndex = 1
     })
-    this.sprite.on('mouseup', ({data}) => {
+    function mouseupHandler(event) {
+      let {data} = event
+
       this.tracking = false
-      this.sprite.zIndex = 0
+      if(this.sprite.zIndex == 1) this.sprite.zIndex = 0
       let mouseend = [data.global.x, data.global.y]
 
+      if(this.draggable) {
+        app.client.dropDraggingTarget()
+      }
 
       if(squareDistance(this.mouseorigin, mouseend) <= 16) {
         this.toggleSelect()
         if(typeof this.onClick == 'function') this.onClick(data)
       }
-    })
+    }
+    this.sprite.on('mouseup', mouseupHandler.bind(this))
+    this.sprite.on('mouseupoutside', mouseupHandler.bind(this))
 
     this.sprite.on('mousemove', ({data}) => {
       if (this.tracking && this.moveable) {
@@ -93,6 +103,8 @@ class Card {
   moveTo(x,y, animate = true, baseVelocity = 12) {
     this.sprite.width = this.scale * 100
     this.sprite.height = this.scale * 150
+    this.sprite.pivot.x = this.sprite.width / 2
+    this.sprite.pivot.y = this.sprite.height / 2
     if (!animate) {
       this.sprite.x = x + this.sprite.pivot.x
       this.sprite.y = y + this.sprite.pivot.y
@@ -175,7 +187,8 @@ class Card {
     if (this.isFaceUp) return
     this.isFaceUp = true
     if (animate) await this.animateFlip()
-    this.sprite.texture = Card.TEXTURES[this.textureIndex]
+    if(this.textureIndex >= 0)
+      this.sprite.texture = Card.TEXTURES[this.textureIndex]
     if (animate) await this.animateFlip(-1)
   }
 
@@ -354,11 +367,18 @@ function drawCard(c,n) {
 function drawHalo() {
   ctx.fillStyle = 'white'
   ctx.fillRect(0,0,200,300)
+  ctx.scale(0.5, 0.5)
+
+  ctx.lineWidth = 6
+  ctx.strokeStyle = 'blue'
+  ctx.strokeRect(3,3,197,297)
+  /*
   let grd = ctx.createRadialGradient(50, 100, 20, 100, 150, 200)
   grd.addColorStop(0, '#ffffff00')
   grd.addColorStop(1, 'yellow')
   ctx.fillStyle = grd
   ctx.fillRect(0,0,200,300)
+  */
 }
 
 export default Card

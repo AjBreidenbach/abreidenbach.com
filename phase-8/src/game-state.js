@@ -2,6 +2,7 @@ import DrawPile from './draw-pile'
 import Card from './card'
 import Hand from './hand'
 import Deck from './deck'
+import PhaseStage from './phase-stage'
 import {phase1} from './phases'
 import {dummyApp} from './test'
 
@@ -25,6 +26,19 @@ const OPPONENT_POSITIONS = [
   }
 ]
 
+const STAGE_AREAS = [
+  {
+    x0: 0,
+    x1: 440,
+    y0: 510,
+    y1: 610,
+  }, {
+    x0: 0,
+    x1: 440,
+    y0: 620,
+    y1: 720,
+  }
+]
 
 // index will be added upon instantiation
 const COMPLETED_SET_POSITIONS = [
@@ -60,8 +74,6 @@ const COMPLETED_SET_POSITIONS = [
     scale: 2/3,
     rows: 1
   }
-
-
 ]
 
 const DRAW_CARD =     0b01
@@ -103,6 +115,13 @@ class GameState {
 
     this.beginRound()
 
+    this.stageAreas = []
+
+
+    for(let area of STAGE_AREAS) {
+      this.stageAreas.push(new PhaseStage(app, area))
+    }
+
   }
 
   takeScore() {
@@ -110,6 +129,7 @@ class GameState {
       this.scores[i] += hand.cards.reduce((acc, card) => {
         return acc + (typeof card.type == 'number'? card.type: 15)
       }, 0)
+      hand.setScore(this.scores[i])
     })
 
   }
@@ -159,12 +179,16 @@ class GameState {
   addActionHandlers() {
     this.actionHandlers = {}
 
-    this.actionHandlers['joined'] = (() => {
+    this.actionHandlers['joined'] = ((_, player) => {
       let hand
       if (this.uiPlayer == this.hands.length) {
         hand = new Hand(this.app, {owned: true})
+        hand.player = player + 1
+        hand.setText()
       } else {
         hand = new Hand(this.app, this.opponentPositions.pop())
+        hand.player = player + 1
+        hand.setText()
       }
       this.drawPile.deal(hand)
       this.hands.push(hand)

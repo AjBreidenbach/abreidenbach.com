@@ -1,27 +1,43 @@
 import Card from './card'
+import * as PIXI from 'pixi.js'
+
+const {Text} = PIXI
 
 class Hand {
   constructor (app, options) {
-    //if (this.__proto__.constructor.name == 'Hand') {
     Object.assign(this, {
       owned: false,
-      //orientation: 'ltr',
       x0: 0,
       x1: 440,
       y0: 0,
-      y1: 470,
+      y1: 506,
       rows: 3,
-      scale: 1
+      scale: 1,
+      hasInfo: true
     }, options)
-    //}
+
     this.cards = []
     this.app = app
 
-    this.cardOptions = {moveable: this.owned, selectable: this.owned, scale: this.scale}
 
-    //console.log(options, this)
+    if(!this.fontSize) this.fontSize = 24 * this.scale
+
+    this.cardOptions = {moveable: this.owned, selectable: this.owned, scale: this.scale, draggable: this.owned}
 
 
+    if (this.hasInfo) {
+      this.info = new Text()
+      this.info.x = this.x0
+      this.info.y = this.y0
+      this.info.style.fontSize = this.fontSize
+      if(this.__proto__.constructor.name == 'Hand') {
+        this.phase = 1
+        this.score = 0
+      }
+      this.setText()
+      app.stage.addChild(this.info)
+    }
+    
     if(this.owned) this.registerHandlers()
   }
 
@@ -49,6 +65,11 @@ class Hand {
     }
   }
 
+  setText() { this.info.text = this.getMessage()}
+  setScore(score) { this.score = score; this.setText() }
+  setPhase(phase) { this.phase = phase; this.setText() }
+
+  getMessage() {return `Player ${this.player}, phase ${this.phase} (${this.score} pts)` }
 
   removeSprites() {
     for (let card of this.cards) {
@@ -132,13 +153,25 @@ class Hand {
   addCard(card) {
     if (typeof card == 'number') 
       this.cards.push(new Card(this.app, card, this.cardOptions))
-    else this.cards.push(card)
-    
+    //else this.cards.push(card)
+    else this.cards.push(Object.assign(card, this.cardOptions))
+  }
+
+  insertCard(_card, i) {
+    let card = typeof _card == 'number'?
+      new Card(this.app, _card, this.cardOptions) :
+      Object.assign(_card, this.cardOptions)
+
+    this.cards[i] = card
+
   }
 
   draw(card, reposition=false) {
+    this.addCard(card) //
+    /*
     Object.assign(card, this.cardOptions)
     this.cards.push(card)
+    */
     if (reposition) {
       this.positionCards(true)
     }
@@ -161,14 +194,21 @@ class Hand {
   }
 
   positionCards(animate=true, baseVelocity=12) {
-    let factor = Math.ceil(this.cards.length / this.rows)
-    let deltaX  = (this.x1 - this.x0) / factor
-    let deltaY  = (this.y1 - this.y0) / this.rows
-    let x = this.x0, y = this.y0
-    //console.log({factor})
+    let colSize = Math.ceil(this.cards.length / this.rows)
+
+    let y0 
+    if (this.hasInfo) { 
+      if (this.paddingTop !== null && this.paddingTop !== undefined) y0 = this.y0 + this.paddingTop
+      else y0 = this.y0 + this.fontSize * 1.5 
+    }
+    else { y0 = this.y0 }
+
+    let deltaX  = (this.x1 - this.x0) / colSize
+    let deltaY  = (this.y1 - y0) / this.rows
+    let x = this.x0, y = y0
     for (let i = 0; i < this.cards.length; i++) {
       let card = this.cards[i]
-      if (i != 0 && i % factor == 0) {
+      if (i != 0 && i % colSize == 0) {
         y += deltaY
         x = this.x0
       }
@@ -180,7 +220,7 @@ class Hand {
       }
       
 
-      x += deltaX//; y += deltaY
+      x += deltaX
     }
   }
 

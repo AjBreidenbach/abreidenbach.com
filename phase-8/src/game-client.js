@@ -40,6 +40,8 @@ class GameClient {
     
   }
 
+
+
   onReady(f) {
     if (this.callbacks){
       this.callbacks.push(f)
@@ -63,6 +65,8 @@ class GameClient {
 class Phase8Client extends GameClient {
   constructor() {
     super()
+    this.droppingTargets = []
+    this.draggingListeners = []
   }
 
   drawCard(faceUp=true) {
@@ -94,12 +98,10 @@ class Phase8Client extends GameClient {
   }
 
   initiateHit(cards) {
-    console.log('initiateHit')
     this.hittingCards = cards
   }
 
   completeHit(setIndex) {
-    console.log('completeHit')
     if(!this.hittingCards) return
     this.dispatchEvent({
       kind: 'hit',
@@ -113,11 +115,60 @@ class Phase8Client extends GameClient {
     for(let i = 0; i < this.index; i++) {
       this.gameState.handleAction({kind:'joined'}, i)
     }
+
+    
     
     this.dispatchEvent({
       kind: 'joined'
     })
   }
+
+  setDraggingTarget(card) {
+    this.draggingTarget = card
+    for (let listener of this.draggingListeners) {
+      listener('set', card)
+    }
+  }
+
+  hasDraggingTarget() {
+    return !!this.draggingTarget
+    
+  }
+
+
+  registerDraggingListener(listener) {
+    if (typeof listener == 'function') this.draggingListeners.push(listener)
+  }
+
+  deleteDraggingListener(listener) {
+    this.draggingListeners = this.draggingListeners.filter(_listener => listener !== _listener)
+  }
+
+
+  get playerHand() {
+    return this.gameState.hands[this.index]
+  }
+
+  dropDraggingTarget() {
+    if(this.droppingTargets.length == 1) {
+      let onDrop = this.droppingTargets[0].onDrop
+      if (typeof onDrop == 'function') onDrop(this.draggingTarget)
+      this.droppingTargets.length = 0
+    }
+    for (let listener of this.draggingListeners) {
+      listener('drop', card)
+    }
+    this.draggingTarget = null
+  }
+
+  setDroppingTarget(card) {
+    this.droppingTargets.push(card)
+  }
+
+  removeDroppingTarget(card) {
+    this.droppingTargets = this.droppingTargets.filter(_card => card !== card)
+  }
+
 
 }
 

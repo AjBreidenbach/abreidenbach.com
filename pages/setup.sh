@@ -12,7 +12,7 @@ mkdir static
 
 pushd static
 ln -s ../../connect/public/build ./connect
-ln -s ../../phase-8/public/build ./phase-8
+ln -s ../../phase-8/public ./phase-8
 popd
 
 pug  -w *.pug
