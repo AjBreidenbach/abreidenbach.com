@@ -50,7 +50,7 @@ class PhaseStage extends Hand {
         //placeholder.sprite.removeAllListeners()
         let droppedCard = client.playerHand.removeCard(_card.id)
         droppedCard.onClick = _ => {
-          client.playerHand.addCard(phaseStage.cards[i])
+          client.playerHand.draw(phaseStage.cards[i])
           client.playerHand.positionCards()
           placeholder.zIndex = 2
           phaseStage.insertCard(placeholder, i)
@@ -68,6 +68,8 @@ class PhaseStage extends Hand {
         if (eventType == 'set') placeholder.alpha =  1
         else placeholder.alpha =  0
       }
+
+      placeholder.listener = listener
 
 
       client.registerDraggingListener(listener)
@@ -95,6 +97,16 @@ class PhaseStage extends Hand {
   }
   
 
+  remove() {
+    let stage = this.app.stage, client = this.app.client
+    stage.removeChild(this.cancelButton)
+    for(let placeholder of this.placeholders) {
+      //stage.removeChild(placeholder)
+      client.deleteDraggingListener(placeholder.listener)
+    }
+    this.removeSprites()
+  }
+
   attachCancelButton() {
     let phaseStage = this
     this.cancelButton = new Sprite(app.loader.resources['cancel'].texture)
@@ -115,7 +127,7 @@ class PhaseStage extends Hand {
     for(let i = 0; i < this.cards.length; i++) {
       if(this.cards[i].id != -1) {
         modified = true
-        this.app.client.playerHand.addCard(this.cards[i])
+        this.app.client.playerHand.draw(this.cards[i])
         let placeholder = this.placeholders[i]
         placeholder.zIndex = 2
         this.insertCard(placeholder, i)

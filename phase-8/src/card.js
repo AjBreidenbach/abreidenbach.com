@@ -40,6 +40,11 @@ class Card {
       i + 42: -1
   }
 
+  resetTexture() {
+    if (this.textureIndex >= 0 )
+      this.texture = Card.TEXTURES[this.textureIndex]
+  }
+
   constructor(app, id, options) {
     Object.assign(this, {moveable: true, selectable: false, isFaceUp: false, scale: 1}, options)
     this.id = id
@@ -66,7 +71,7 @@ class Card {
       }
       
       this.tracking = true
-      this.sprite.zIndex = 1
+      if (this.sprite.zIndex === 0) this.sprite.zIndex = 1
     })
     function mouseupHandler(event) {
       let {data} = event
@@ -118,18 +123,15 @@ class Card {
     
   }
 
-  set zIndex(z) {
-    this.sprite.zIndex = z
-  }
+  set zIndex(z) { this.sprite.zIndex = z }
+  get zIndex() {return this.sprite.zIndex} 
 
-  set alpha(a) {
-    this.sprite.alpha = a
-  }
+  set alpha(a) { this.sprite.alpha = a }
+  get alpha() {return this.sprite.alpha}
 
-  set texture(t) {
-    this.sprite.texture = t
-  }
+  set texture(t) { this.sprite.texture = t }
 
+  set tint(t) { this.sprite.tint = t } 
 
   set isDropTarget(a) {
     if(a) {

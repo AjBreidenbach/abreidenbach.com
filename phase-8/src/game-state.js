@@ -209,6 +209,10 @@ class GameState {
       } else {
         this.drawPile.deal(hand, 1, true)
       }
+
+
+      if(player !== this.uiPlayer)  hand.positionCards()
+
     }).bind(this)
 
     this.actionHandlers['discardCard'] = (({id}, player) => {
@@ -218,6 +222,7 @@ class GameState {
       let hand = this.hands[player]
       //console.log(this.hands, player)
       hand.discardCard(id, this.drawPile)
+      if(player !== this.uiPlayer)  hand.positionCards()
       if (this.currentTurn.did(DRAW_CARD)) {
 
         this.actionHandlers['endTurn'](null, player)
@@ -241,6 +246,13 @@ class GameState {
         set.positionCards(true, 20)
       }
       this.graduated[player] = true
+      if(player === this.uiPlayer)  {
+        let stageArea
+        while(stageArea = this.stageAreas.pop()) {
+          stageArea.remove()
+        }
+      }
+      else hand.positionCards()
       this.playerPhases[player] += 1
     }).bind(this)
 

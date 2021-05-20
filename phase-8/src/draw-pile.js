@@ -61,8 +61,14 @@ class DrawPile {
 
   }
 
+  get faceUpTop() {
+    return this.faceUpPile[this.faceUpPile.length - 1]
+  }
+
   popFaceUp() {
     let card = this.faceUpPile.pop()
+    let faceUpTop = this.faceUpTop
+    if(faceUpTop) faceUpTop.alpha = faceUpTop.defaultAlpha = 1
     card.isDropTarget = false
     card.onClick = null
     return card
@@ -72,6 +78,13 @@ class DrawPile {
   pushFaceUp(card, reposition=true) {
 
     let client = this.app.client
+    //let faceUpTop = this.faceUpTop
+    //if(faceUpTop) faceUpTop.alpha = 0
+    this.faceUpPile.slice(1).forEach(card => {
+      card.alpha = card.defaultAlpha = 0
+
+    })
+
     card.isDropTarget = true
     card.onDrop = function (_card) {
 
@@ -80,6 +93,7 @@ class DrawPile {
 
     card.onClick = _ => client.drawCard(true)
     card.zIndex = this.faceUpPile.length + 2
+    card.alpha = 1
     Object.assign(card, DRAW_PILE_FACE_UP_OPTIONS)
     this.faceUpPile.push(card)
     if(reposition) this.positionDrawPile()

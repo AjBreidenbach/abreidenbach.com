@@ -74,6 +74,8 @@ class Hand {
   removeSprites() {
     for (let card of this.cards) {
       this.app.stage.removeChild(card.sprite)
+      if(this.hasInfo)
+        this.app.stage.removeChild(this.info)
     }
   }
 
@@ -167,6 +169,7 @@ class Hand {
 
   draw(card, reposition=false) {
     this.addCard(card) //
+    card.zIndex = 0
     /*
     Object.assign(card, this.cardOptions)
     this.cards.push(card)
@@ -202,7 +205,7 @@ class Hand {
     }
     else { y0 = this.y0 }
 
-    let deltaX  = (this.x1 - this.x0) / colSize
+    let deltaX  = Math.min(125 * this.scale,  (this.x1 - this.x0) / colSize)
     let deltaY  = (this.y1 - y0) / this.rows
     let x = this.x0, y = y0
     for (let i = 0; i < this.cards.length; i++) {

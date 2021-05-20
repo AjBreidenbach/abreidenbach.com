@@ -116,6 +116,22 @@ class Phase8Client extends GameClient {
     delete this.hittingCards
   }
 
+
+  hit(card, setIndex) {
+    this.dispatchEvent({kind: 'hit', cards: [card.toSimpleRepr()], setIndex})
+  }
+
+
+  hitLeft(card, setIndex) {
+    this.hit(card, setIndex)
+
+  }
+
+  hitRight(card, setIndex) {
+    this.hit(card, setIndex)
+
+  }
+
   join() {
     for(let i = 0; i < this.index; i++) {
       this.gameState.handleAction({kind:'joined'}, i)
