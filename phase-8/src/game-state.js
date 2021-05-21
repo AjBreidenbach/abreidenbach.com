@@ -2,9 +2,13 @@ import DrawPile from './draw-pile'
 import Card from './card'
 import Hand from './hand'
 import Deck from './deck'
+import * as PIXI from 'pixi.js'
 import PhaseStage from './phase-stage'
 import {phase1} from './phases'
 import {dummyApp} from './test'
+
+
+const {Text} = PIXI
 
 
 const OPPONENT_POSITIONS = [
@@ -114,14 +118,38 @@ class GameState {
     this.addActionHandlers()
 
     this.beginRound()
+    
 
     this.stageAreas = []
 
+    let indicator
+
+    this.indicator = indicator = new Text(this.getIndicatorText(), {fontSize: 16})
+    this.app.stage.addChild(indicator)
+    indicator.x = 0
+    indicator.y = 780
+
+
+    indicator.interactive = true
+    indicator.on('click', _ => app.client.endTurn())
 
     for(let area of STAGE_AREAS) {
       this.stageAreas.push(new PhaseStage(app, area))
     }
 
+  }
+
+  getIndicatorText() {
+    let drewCard = this.currentTurn.did(DRAW_CARD)? 'yes': 'no'
+    let discardedCard = this.currentTurn.did(DISCARD_CARD)? 'yes': 'no'
+    let endTurnPrompt = drewCard == 'yes' && discardedCard == 'yes' && this.uiPlayer == this.currentTurnIndex?
+      '. Press E or click here to end your turn...': ''
+
+    return `It's player ${this.currentTurnIndex + 1}'s turn; (drew card?: ${drewCard}) (discarded card?: ${discardedCard})${endTurnPrompt}`
+  }
+
+  updateIndicatorText() {
+    this.indicator.text = this.getIndicatorText()
   }
 
   takeScore() {
@@ -210,6 +238,7 @@ class GameState {
         this.drawPile.deal(hand, 1, true)
       }
 
+      this.updateIndicatorText()
 
       if(player !== this.uiPlayer)  hand.positionCards()
 
@@ -227,6 +256,7 @@ class GameState {
 
         this.actionHandlers['endTurn'](null, player)
       }
+      this.updateIndicatorText()
     }).bind(this)
 
 
@@ -282,6 +312,7 @@ class GameState {
         return 
       }
       this.advanceTurn()
+      this.updateIndicatorText()
       
     }).bind(this)
 
