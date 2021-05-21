@@ -28,7 +28,7 @@ function setup() {
       app, client.index, client.rng
     )
 
-    client.gameState = gameState
+    client.setGameState(gameState)
 
 
     app.view.focus()

@@ -1,4 +1,5 @@
 import GameState from './game-state'
+import Deck from './deck'
 
 async function loadLib() {
   let src = await fetch('/lib.js')
@@ -33,13 +34,13 @@ class GameClient {
           client.gameState.handleAction(action, index)
         }
       }
+
       delete client.callbacks
     })
     
 
     
   }
-
 
 
   onReady(f) {
@@ -62,11 +63,29 @@ class GameClient {
 }
 
 
+import * as PIXI from 'pixi.js'
+const {Sprite} = PIXI
+
 class Phase8Client extends GameClient {
   constructor() {
     super()
     this.droppingTargets = []
     this.draggingListeners = []
+  }
+
+  setGameState(gameState){
+    super.setGameState(gameState)
+    let app = this.gameState.app
+    let backgroundSprite = new Sprite()
+    backgroundSprite.width = 1200
+    backgroundSprite.height = 800
+    app.stage.addChild(backgroundSprite)
+    backgroundSprite.zIndex = -1
+
+    app.stage.interactive = true
+
+    app.stage.on('click', this.onClick.bind(this))
+
   }
 
   drawCard(faceUp=true) {
@@ -76,12 +95,47 @@ class Phase8Client extends GameClient {
     })
   } 
 
+  onClick(e) {
+    let {data} = e
+    let {x, y} = data.global
+
+    for(let hand of this.gameState.hands) {
+      if (x >= hand.x0 && x <= hand.x1 && y >= hand.y0 && y <= hand.y1) {
+        hand.click(data)
+      }
+
+    }
+  }
+
+
+
   discardCard(id) {
-    this.dispatchEvent({
-      kind: 'discardCard',
-      id
-      //color, type
-    })
+    let discard = { kind: 'discardCard', id }
+    let gameState = this.gameState
+    let hands = this.gameState.hands
+    let client = this
+    if(Deck.typeOf(id) == 'S' && hands.length > 1) {
+      gameState.setIndicatorText('Select a player to skip')
+      for(let i in hands) {
+        let hand = hands[i]
+        if (i == this.index) continue
+
+        if(hands.length == 2){
+          client.dispatchEvent({kind: 'skipIntent', target: i})
+          client.dispatchEvent(discard)
+        }
+        else {
+        hand.onClick = (_ => {
+          client.dispatchEvent({kind: 'skipIntent', target: i})
+          //gameState.skipIntent[client.index] = i
+          hands.forEach(hand => hand.onClick = null)
+          client.dispatchEvent(discard)
+        })
+        }
+      }
+
+    }
+    else this.dispatchEvent(discard)
   }
 
   endTurn() {

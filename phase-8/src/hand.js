@@ -65,6 +65,11 @@ class Hand {
     }
   }
 
+
+  click(data) {
+    if (typeof this.onClick == 'function') this.onClick(data)
+  }
+
   setText() { this.info.text = this.getMessage()}
   setScore(score) { this.score = score; this.setText() }
   setPhase(phase) { this.phase = phase; this.setText() }

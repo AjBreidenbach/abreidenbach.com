@@ -107,6 +107,10 @@ class GameState {
     this.graduated = []       // tracks which players have laid down a phase in this round
     this.scores = []
     
+
+    this.skipIntent = []
+    this.skipCounter = []
+
     this.currentTurnIndex = 0
     this.currentTurn = new Turn()
 
@@ -137,6 +141,8 @@ class GameState {
       this.stageAreas.push(new PhaseStage(app, area))
     }
 
+
+    
   }
 
   getIndicatorText() {
@@ -150,6 +156,10 @@ class GameState {
 
   updateIndicatorText() {
     this.indicator.text = this.getIndicatorText()
+  }
+
+  setIndicatorText(message) {
+    this.indicator.text = message
   }
 
   takeScore() {
@@ -166,6 +176,8 @@ class GameState {
     this.graduted = this.graduated.map(_ => false)
     this.takeScore()
     this.completedSetPositions = COMPLETED_SET_POSITIONS.slice()
+    this.skipCounter.fill(0)
+    this.skipIntent.fill(null)
     for(let hand of this.hands) {
       hand.removeSprites()
       hand.cards.length = 0
@@ -189,6 +201,10 @@ class GameState {
   advanceTurn() {
     this.currentTurnIndex = (this.currentTurnIndex + 1 ) % this.scores.length
     this.currentTurn = new Turn()
+    if(this.skipCounter[this.currentTurnIndex]) {
+      this.skipCounter[this.currentTurnIndex] -= 1
+      this.advanceTurn()
+    }
   }
 
   beginRound() {
@@ -218,25 +234,29 @@ class GameState {
         hand.player = player + 1
         hand.setText()
       }
+
       this.drawPile.deal(hand)
       this.hands.push(hand)
       this.playerPhases.push(0)
       this.scores.push(0)
+      this.skipIntent.push(null)
+      this.skipCounter.push(0)
       this.graduated.push(false)
       hand.positionCards(false)
+      
     }).bind(this)
 
 
     this.actionHandlers['drawCard'] = (({faceUp}, player) => {
       if(this.currentTurn.did(DRAW_CARD)) return
-      this.currentTurn.do(DRAW_CARD)
-      //console.log(player)
       let hand = this.hands[player]
       if (faceUp) {
+        if(this.drawPile.faceUpTop.type == 'S') return
         hand.draw(this.drawPile.popFaceUp(), true)
       } else {
         this.drawPile.deal(hand, 1, true)
       }
+      this.currentTurn.do(DRAW_CARD)
 
       this.updateIndicatorText()
 
@@ -244,12 +264,20 @@ class GameState {
 
     }).bind(this)
 
+    this.actionHandlers['skipIntent'] = (({target}, player) => {
+      this.skipIntent[player] = target
+    })
+
     this.actionHandlers['discardCard'] = (({id}, player) => {
-      //console.log('did discardCard?', this.currentTurn.did(DISCARD_CARD))
       if(this.currentTurn.did(DISCARD_CARD)) return
       this.currentTurn.do(DISCARD_CARD)
+
+      if(Deck.typeOf(id) == 'S' && this.skipIntent[player] !== null) {
+        this.skipCounter[this.skipIntent[player]] += 1
+      }
+      
       let hand = this.hands[player]
-      //console.log(this.hands, player)
+      //TODO check to make sure card is in hand
       hand.discardCard(id, this.drawPile)
       if(player !== this.uiPlayer)  hand.positionCards()
       if (this.currentTurn.did(DRAW_CARD)) {
