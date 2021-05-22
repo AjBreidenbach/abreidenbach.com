@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js'
+import _ from './test'
 import Card from './card'
 import Hand from './hand'
 import Deck from './deck'

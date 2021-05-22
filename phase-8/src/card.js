@@ -148,7 +148,7 @@ class Card {
   }
 
 
-  static placeholder() {
+  static placeholder(app) {
     let placeholder = new Card(app, -1)
     placeholder.texture = Card.HALO
     placeholder.isDropTarget = true

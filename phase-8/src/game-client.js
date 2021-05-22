@@ -190,12 +190,11 @@ class Phase8Client extends GameClient {
     for(let i = 0; i < this.index; i++) {
       this.gameState.handleAction({kind:'joined'}, i)
     }
-
-    
     
     this.dispatchEvent({
       kind: 'joined'
     })
+    this.gameState.beginRound()
   }
 
   setDraggingTarget(card) {

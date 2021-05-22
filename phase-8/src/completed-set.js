@@ -2,20 +2,13 @@ import Hand from './hand'
 import Card from './card'
 
 class CompletedSet extends Hand {
-  constructor(app, cards, setDescriminator, options) {
+  constructor(app, cards, validate, options) {
     super(app, Object.assign(
       {show:true, owned: false, scale: 2/3, hasInfo: false},
       options))
-    this.setDescriminator = setDescriminator
+    this.validate = validate
     this.expectedCards = cards
 
-
-    for (let card of cards) {
-      console.assert(this.setDescriminator(this.cards, card.color, card.type), {cards, color: card.color, type: card.type})
-    }
-
-
-    //this.cardOptions = {moveable: false, selectable: false, scale: 0.6}
 
     let set = this
 
@@ -26,8 +19,6 @@ class CompletedSet extends Hand {
       if(status == 'set') first.texture = last.texture = Card.HALO
       else {
         set.cards.forEach(card => card.resetTexture())
-        //first.resetTexture()
-        //last.resetTexture()
       }
     })
   }
@@ -36,12 +27,11 @@ class CompletedSet extends Hand {
     let {id, type, color} = card
     if (
       this.expectedCards.some(card => card.id == id) || 
-      this.setDescriminator(this.cards, color, type)
+      this.validate(this.cards.concat(card))
     ) {
       let card = hand.removeCard(id)
       let set = this
       card.onClick = _ => app.client.completeHit(set.index)
-      //card.deselect()
       this.draw(card, false)
 
       this.updateDropHandlers()

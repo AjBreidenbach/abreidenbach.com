@@ -4,7 +4,9 @@ import Hand from './hand'
 import Deck from './deck'
 import * as PIXI from 'pixi.js'
 import PhaseStage from './phase-stage'
-import {phase1} from './phases'
+import CompletedSet from './completed-set'
+import phases from './phases'
+import PhaseSet from './phase-set'
 import {dummyApp} from './test'
 
 
@@ -78,7 +80,7 @@ const COMPLETED_SET_POSITIONS = [
     scale: 2/3,
     rows: 1
   }
-]
+].reverse()
 
 const DRAW_CARD =     0b01
 const DISCARD_CARD =  0b10
@@ -100,7 +102,6 @@ class GameState {
     this.rng = rng
     Object.assign(this, options)
 
-    this.phases = [phase1]
 
     this.playerPhases = []    // tracks player progression through the game
     this.completedSets = [] // phases completed by players in a round
@@ -121,9 +122,6 @@ class GameState {
     //this.completedSetPositions = COMPLETED_SET_POSITIONS.slice()
     this.addActionHandlers()
 
-    this.beginRound()
-    
-
     this.stageAreas = []
 
     let indicator
@@ -137,9 +135,7 @@ class GameState {
     indicator.interactive = true
     indicator.on('click', _ => app.client.endTurn())
 
-    for(let area of STAGE_AREAS) {
-      this.stageAreas.push(new PhaseStage(app, area))
-    }
+    
 
 
     
@@ -175,7 +171,7 @@ class GameState {
   endRound() {
     this.graduted = this.graduated.map(_ => false)
     this.takeScore()
-    this.completedSetPositions = COMPLETED_SET_POSITIONS.slice()
+    //this.completedSetPositions = COMPLETED_SET_POSITIONS.slice()
     this.skipCounter.fill(0)
     this.skipIntent.fill(null)
     for(let hand of this.hands) {
@@ -217,6 +213,12 @@ class GameState {
     }
     this.completedSets.length = 0
     this.completedSetPositions = COMPLETED_SET_POSITIONS.slice()
+    let phase = phases[this.playerPhases[this.uiPlayer]]
+    for(let i in STAGE_AREAS) {
+      let area = STAGE_AREAS[i]
+      let set = phase[i]
+      this.stageAreas.push(new PhaseStage(app, Object.assign(area, {setDescription: set.description})))
+    }
     //this.graduated.length = 0
   }
 
@@ -228,14 +230,13 @@ class GameState {
       if (this.uiPlayer == this.hands.length) {
         hand = new Hand(this.app, {owned: true})
         hand.player = player + 1
-        hand.setText()
       } else {
         hand = new Hand(this.app, this.opponentPositions.pop())
         hand.player = player + 1
-        hand.setText()
       }
+      hand.setText()
 
-      this.drawPile.deal(hand)
+      //this.drawPile.deal(hand)
       this.hands.push(hand)
       this.playerPhases.push(0)
       this.scores.push(0)
@@ -290,19 +291,21 @@ class GameState {
 
     this.actionHandlers['layPhase'] = (({sets}, player) => {
       // TODO add this check back if(!Array.isArray(cards)) return
-      let phase = this.phases[this.playerPhases[player]]
-      let cards = sets.flat()
-      let completedSets = phase(this.app, cards, this.completedSetPositions)
-      if (! Array.isArray(completedSets)) return
-      let hand = this.hands[player]
-      for (let set of completedSets) {
-        set.index = this.completedSets.length
-        this.completedSets.push(set)
-        for(let card of set.expectedCards) {
-          set.hitFrom(hand, card)
-        }
-        set.positionCards(true, 20)
+      let phase = phases[this.playerPhases[player]]
+      for(let i in sets) {
+        if(! phase[i].validate(sets[i])) {return}
       }
+      let hand = this.hands[player]
+      for(let i in sets) {
+        let completedSet = new CompletedSet(this.app, sets[i], phase[i].validate, this.completedSetPositions.pop())
+        completedSet.index = this.completedSets.length
+        this.completedSets.push(completedSet)
+        for(let card of completedSet.expectedCards) {
+          completedSet.hitFrom(hand, card)
+        }
+        completedSet.positionCards(true, 20)
+      }
+      
       this.graduated[player] = true
       if(player === this.uiPlayer)  {
         let stageArea
@@ -370,6 +373,9 @@ function testTakeScore() {
     {cards: [{type: 1}, {type: 2}, {type: 3}]},
     {cards: [{type: 10}, {type: 'W'}, {type: 4}]}
   ]
+
+
+  gameState.hands.forEach(hand => hand.setScore = () => {})
   gameState.takeScore()
 
   console.assert(gameState.scores[0] == 6 && gameState.scores[1] == 29, 'expected gameState.scores to be', [6, 29], 'instead of', gameState.scores)

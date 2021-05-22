@@ -10,7 +10,7 @@ class PhaseStage extends Hand {
   constructor(app, options) {
     super(app, Object.assign({
       rows: 1,
-      phaseDescription: 'No description provided',
+      setDescription: 'No description provided',
       numSlots: 4,
       scale: 0.6,
       paddingTop: 0,
@@ -39,7 +39,7 @@ class PhaseStage extends Hand {
     })
 
     for(let i = 0; i < this.numSlots; i++) {
-      let placeholder = Card.placeholder()
+      let placeholder = Card.placeholder(app)
       placeholder.alpha =  placeholder.defaultAlpha = 0
 
       placeholder.onDrop = function(_card) {
@@ -109,7 +109,7 @@ class PhaseStage extends Hand {
 
   attachCancelButton() {
     let phaseStage = this
-    this.cancelButton = new Sprite(app.loader.resources['cancel'].texture)
+    this.cancelButton = new Sprite(this.app.loader.resources['cancel'].texture)
     this.app.stage.addChild(this.cancelButton)
     this.cancelButton.on('click', phaseStage.reset.bind(phaseStage))
     this.cancelButton.interactive = true
@@ -120,7 +120,7 @@ class PhaseStage extends Hand {
     this.cancelButton.alpha = 0
   }
 
-  getMessage() {return this.phaseDescription}
+  getMessage() {return this.setDescription}
 
   reset(animate=true) {
     let modified = false

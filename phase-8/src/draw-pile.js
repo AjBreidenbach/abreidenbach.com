@@ -29,7 +29,7 @@ class DrawPile {
     window.faceDown = this.faceDown
 
 
-    let placeholder = Card.placeholder()
+    let placeholder = Card.placeholder(app)
     placeholder.moveTo(this.x1 - 150, this.y0, false)
     this.pushFaceUp(placeholder, false)
     this.pushFaceUp(faceUpTop, false)
