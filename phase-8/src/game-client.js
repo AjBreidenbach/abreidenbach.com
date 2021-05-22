@@ -171,18 +171,18 @@ class Phase8Client extends GameClient {
   }
 
 
-  hit(card, setIndex) {
-    this.dispatchEvent({kind: 'hit', cards: [card.toSimpleRepr()], setIndex})
+  hit(card, direction, setIndex) {
+    this.dispatchEvent({kind: 'hit', direction, cards: [card.toSimpleRepr()], setIndex})
   }
 
 
   hitLeft(card, setIndex) {
-    this.hit(card, setIndex)
+    this.hit(card, 'left', setIndex)
 
   }
 
   hitRight(card, setIndex) {
-    this.hit(card, setIndex)
+    this.hit(card, 'right', setIndex)
 
   }
 
@@ -194,7 +194,7 @@ class Phase8Client extends GameClient {
     this.dispatchEvent({
       kind: 'joined'
     })
-    this.gameState.beginRound()
+    //this.gameState.beginRound()
   }
 
   setDraggingTarget(card) {

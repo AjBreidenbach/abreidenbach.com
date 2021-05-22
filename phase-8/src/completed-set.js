@@ -23,16 +23,20 @@ class CompletedSet extends Hand {
     })
   }
 
-  hitFrom(hand, card) {
+  hitFrom(hand, card, direction='right') {
     let {id, type, color} = card
     if (
       this.expectedCards.some(card => card.id == id) || 
-      this.validate(this.cards.concat(card))
+      this.validate(
+        direction == 'right' ? 
+          this.cards.concat(card):
+          [card].concat(this.cards)
+      )
     ) {
       let card = hand.removeCard(id)
-      let set = this
-      card.onClick = _ => app.client.completeHit(set.index)
-      this.draw(card, false)
+      //let set = this
+      //card.onClick = _ => app.client.completeHit(set.index)
+      this.draw(card, false, direction == 'left')
 
       this.updateDropHandlers()
     } else { 
@@ -70,6 +74,7 @@ class CompletedSet extends Hand {
       
     }
   }
+  
 }
 
 export default CompletedSet

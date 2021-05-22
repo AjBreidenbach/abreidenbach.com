@@ -31,7 +31,7 @@ class Hand {
       this.info.y = this.y0
       this.info.style.fontSize = this.fontSize
       if(this.__proto__.constructor.name == 'Hand') {
-        this.phase = 1
+        this.phase = 0
         this.score = 0
       }
       this.setText()
@@ -70,16 +70,16 @@ class Hand {
     if (typeof this.onClick == 'function') this.onClick(data)
   }
 
-  setText() { this.info.text = this.getMessage()}
+  setText() {this.info.text = this.getMessage()}
   setScore(score) { this.score = score; this.setText() }
   setPhase(phase) { this.phase = phase; this.setText() }
 
-  getMessage() {return `Player ${this.player}, phase ${this.phase} (${this.score} pts)` }
+  getMessage() {return this.player ?`Player ${this.player}, phase ${this.phase + 1} (${this.score} pts)`: '' }
 
-  removeSprites() {
+  removeSprites(removeInfo=false) {
     for (let card of this.cards) {
       this.app.stage.removeChild(card.sprite)
-      if(this.hasInfo)
+      if(this.hasInfo && removeInfo)
         this.app.stage.removeChild(this.info)
     }
   }
@@ -172,8 +172,11 @@ class Hand {
 
   }
 
-  draw(card, reposition=false) {
+  draw(card, reposition=false, prepend=false) {
     this.addCard(card) //
+    if(prepend) {
+      this.cards.unshift(this.cards.pop())
+    }
     card.zIndex = 0
     /*
     Object.assign(card, this.cardOptions)

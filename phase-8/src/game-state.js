@@ -98,6 +98,7 @@ class Turn {
 class GameState {
   constructor(app, player, rng, options) {
     this.app = app
+    this.gameStarted = false
     this.uiPlayer = player
     this.rng = rng
     Object.assign(this, options)
@@ -126,7 +127,7 @@ class GameState {
 
     let indicator
 
-    this.indicator = indicator = new Text(this.getIndicatorText(), {fontSize: 16})
+    this.indicator = indicator = new Text('', {fontSize: 16})
     this.app.stage.addChild(indicator)
     indicator.x = 0
     indicator.y = 780
@@ -204,6 +205,8 @@ class GameState {
   }
 
   beginRound() {
+    this.gameStarted = true
+    this.updateIndicatorText()
     let deck = new Deck(this.rng)
     this.deck = deck
     this.drawPile = new DrawPile(this.app, deck) 
@@ -213,11 +216,16 @@ class GameState {
     }
     this.completedSets.length = 0
     this.completedSetPositions = COMPLETED_SET_POSITIONS.slice()
-    let phase = phases[this.playerPhases[this.uiPlayer]]
+    let playerCurrentPhase = this.playerPhases[this.uiPlayer]
+    let phase = phases[playerCurrentPhase]
     for(let i in STAGE_AREAS) {
       let area = STAGE_AREAS[i]
       let set = phase[i]
       this.stageAreas.push(new PhaseStage(app, Object.assign(area, {setDescription: set.description})))
+    }
+    
+    for(let i in this.hands) {
+      this.hands[i].setPhase(this.playerPhases[i])
     }
     //this.graduated.length = 0
   }
@@ -234,7 +242,11 @@ class GameState {
         hand = new Hand(this.app, this.opponentPositions.pop())
         hand.player = player + 1
       }
-      hand.setText()
+
+      if(this.uiPlayer === 0)
+        this.indicator.text = 'Click here to start'
+      else
+        this.indicator.text = 'Waiting for more players'
 
       //this.drawPile.deal(hand)
       this.hands.push(hand)
@@ -318,13 +330,13 @@ class GameState {
     }).bind(this)
 
 
-    this.actionHandlers['hit'] = (({cards, setIndex}, player) => {
+    this.actionHandlers['hit'] = (({direction, cards, setIndex}, player) => {
       if(!Array.isArray(cards) || setIndex >= this.completedSets.length) return
       if(! this.graduated[player]) return
       let set = this.completedSets[setIndex]
       let hand = this.hands[player]
       for (let card of cards) {
-        set.hitFrom(hand, card)
+        set.hitFrom(hand, card, direction)
       }
       set.positionCards(true, 20)
 
@@ -334,10 +346,11 @@ class GameState {
     }).bind(this)
 
     this.actionHandlers['endTurn'] = ((_, player) => {
+      if(!this.gameStarted && player === 0) this.beginRound()
       if(! (this.currentTurn.did(DRAW_CARD) && this.currentTurn.did(DISCARD_CARD))) return
+
       let hand = this.hands[player]
 
-      console.log(`player ${player} ended their turn`)
       if (hand.cards.length == 0 || this.drawPile.deck.cards.length == 0) {
         this.endRound()
         return 
@@ -351,6 +364,7 @@ class GameState {
 
 
   handleAction(action, player) {
+    console.log({action, player})
     let hand
     if (action.kind == 'joined') {
       this.actionHandlers[action.kind](action,player)

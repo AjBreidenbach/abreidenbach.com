@@ -11,7 +11,7 @@ class PhaseStage extends Hand {
     super(app, Object.assign({
       rows: 1,
       setDescription: 'No description provided',
-      numSlots: 4,
+      numSlots: 9,
       scale: 0.6,
       paddingTop: 0,
       show: true
@@ -104,7 +104,7 @@ class PhaseStage extends Hand {
       //stage.removeChild(placeholder)
       client.deleteDraggingListener(placeholder.listener)
     }
-    this.removeSprites()
+    this.removeSprites(true)
   }
 
   attachCancelButton() {
