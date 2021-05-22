@@ -111,7 +111,7 @@ class PhaseStage extends Hand {
     let phaseStage = this
     this.cancelButton = new Sprite(this.app.loader.resources['cancel'].texture)
     this.app.stage.addChild(this.cancelButton)
-    this.cancelButton.on('click', phaseStage.reset.bind(phaseStage))
+    this.cancelButton.on('pointertap', phaseStage.reset.bind(phaseStage))
     this.cancelButton.interactive = true
     this.cancelButton.width = 50
     this.cancelButton.height = 50

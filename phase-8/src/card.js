@@ -59,7 +59,7 @@ class Card {
     this.sprite.interactive = true
     this.mouseorigin = [0,0]
     this.sprite.pivot.set(50 * this.scale, 75 * this.scale)
-    this.sprite.on('mousedown', ({data}) => {
+    this.sprite.on('pointerdown', ({data}) => {
       window.card = this
       
 
@@ -89,10 +89,10 @@ class Card {
         if(typeof this.onClick == 'function') this.onClick(data)
       }
     }
-    this.sprite.on('mouseup', mouseupHandler.bind(this))
-    this.sprite.on('mouseupoutside', mouseupHandler.bind(this))
+    this.sprite.on('pointerup', mouseupHandler.bind(this))
+    this.sprite.on('pointerupoutside', mouseupHandler.bind(this))
 
-    this.sprite.on('mouseover', _ => {
+    this.sprite.on('pointerover', _ => {
       let client = app.client
       if(this.isDropTarget && client.hasDraggingTarget()) {
         this.alpha = 0
@@ -100,7 +100,7 @@ class Card {
       }
     })
 
-    this.sprite.on('mouseout', _ => {
+    this.sprite.on('pointerout', _ => {
       let client = app.client
       if(this.isDropTarget) {
         this.alpha = this.defaultAlpha
@@ -111,7 +111,7 @@ class Card {
       }
     })
 
-    this.sprite.on('mousemove', ({data}) => {
+    this.sprite.on('pointermove', ({data}) => {
       if (this.tracking && this.moveable) {
         this.sprite.x = data.global.x - this.grabbingX
         this.sprite.y = data.global.y - this.grabbingY

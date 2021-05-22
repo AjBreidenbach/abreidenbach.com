@@ -84,7 +84,7 @@ class Phase8Client extends GameClient {
 
     app.stage.interactive = true
 
-    app.stage.on('click', this.onClick.bind(this))
+    app.stage.on('pointertap', this.onClick.bind(this))
 
   }
 

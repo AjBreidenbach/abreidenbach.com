@@ -134,7 +134,7 @@ class GameState {
 
 
     indicator.interactive = true
-    indicator.on('click', _ => app.client.endTurn())
+    indicator.on('pointertap', _ => app.client.endTurn())
 
     
 
